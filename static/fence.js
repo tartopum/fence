@@ -1,32 +1,32 @@
 $(document).ready(function() {    
-    var ARDUINO_URL = "http://192.168.167.100";
-
-    function getArduinoUrl(suffix) {
-        return ARDUINO_URL + "/fence/" + suffix;
-    }
-
     function updateState() {
-        $.get(getArduinoUrl("state"), function(data) {
+        $("#loader").show();
+        $.get("/state", function(data) {
+            $("#on, #off").hide();
+
             var state = parseInt(data);
             if (state) {
-                $("#state").attr("src", "/static/on.png");
-                $("#state").attr("data-state", 1);
+                $("#on").show();
             } else {
-                $("#state").attr("src", "/static/off.png");
-                $("#state").attr("data-state", 0);
+                $("#off").show();
             }
             $("#loader").hide();
         });
     }
 
-    $("#state").click(function() {
+    function command(url) {
         $("#loader").show();
-        if (parseInt($("#state").attr("data-state"))) {
-            $.get(getArduinoUrl("off"), updateState);
-        } else {
-            $.get(getArduinoUrl("on"), updateState);
-        }
+        $.get(url, updateState);
+    }
+
+    $("#on").click(function() {
+        command("/off");
     });
 
+    $("#off").click(function() {
+        command("/on");
+    });
+
+    $("#on, #off").hide();
     updateState();
 });
