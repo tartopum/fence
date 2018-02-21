@@ -23,10 +23,10 @@ void fenceState(WebServer &server, WebServer::ConnectionType type, char *, bool)
   server.httpSuccess();
   if (type == WebServer::GET) {
     if (digitalRead(FENCE_OUTPUT)) {
-        P(msg) = "1";
+        P(msg) = "0";
         server.printP(msg);
     } else {
-        P(msg) = "0";
+        P(msg) = "1";
         server.printP(msg);
     }
   }
@@ -34,12 +34,12 @@ void fenceState(WebServer &server, WebServer::ConnectionType type, char *, bool)
 
 void fenceOn(WebServer &server, WebServer::ConnectionType type, char *, bool) {
   server.httpSuccess();
-  digitalWrite(FENCE_OUTPUT, HIGH);
+  digitalWrite(FENCE_OUTPUT, LOW);
 }
 
 void fenceOff(WebServer &server, WebServer::ConnectionType type, char *, bool) {
   server.httpSuccess();
-  digitalWrite(FENCE_OUTPUT, LOW);
+  digitalWrite(FENCE_OUTPUT, HIGH);
 }
 
 void setup() {
