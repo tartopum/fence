@@ -15,7 +15,7 @@ $(document).ready(function() {
     };
 
     function displayError(xhr) {
-        alert("Error: " + xhr.responseText);
+        alert("Error " + xhr.status + ": " + xhr.responseText);
     }
 
     function getImageUrl(id, suffix) {
