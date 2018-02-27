@@ -43,6 +43,12 @@ def light_in1():
     return read_state("light_in1")
 
 
+@app.route('/light_in2', methods=['GET', 'POST'])
+def light_in2():
+    if request.method == 'POST':
+        return switch("light_in2")
+    return read_state("light_in2")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
