@@ -1,11 +1,13 @@
 import requests
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
-ARDUINO_URL = "http://192.168.167.100"
+#ARDUINO_URL = "http://192.168.167.100"
+ARDUINO_URL = "http://localhost:5001"
+TIMEOUT = 10
 
 def getArduinoUrl(suffix):
-    return ARDUINO_URL + "/fence/" + suffix
+    return ARDUINO_URL + "/" + suffix
 
 
 @app.route('/')
@@ -13,19 +15,25 @@ def home():
     return render_template("index.html")
 
 
-@app.route('/on')
-def on():
-    return requests.get(getArduinoUrl("on")).text
+def switch_fence():
+    try:
+        return requests.post(getArduinoUrl("fence")).text
+    except requests.exceptions.ConnectionError:
+        return 'Cannot connect to Arduino', 404
 
 
-@app.route('/off')
-def off():
-    return requests.get(getArduinoUrl("off")).text
+def fence_state():
+    try:
+        return requests.get(getArduinoUrl("fence"), timeout=TIMEOUT).text
+    except requests.exceptions.ConnectionError:
+        return 'Cannot connect to Arduino', 404
 
 
-@app.route('/state')
-def state():
-    return requests.get(getArduinoUrl("state")).text
+@app.route('/fence', methods=['GET', 'POST'])
+def fence():
+    if request.method == 'POST':
+        return switch_fence()
+    return fence_state()
 
 
 if __name__ == "__main__":

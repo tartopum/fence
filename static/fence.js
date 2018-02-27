@@ -1,7 +1,11 @@
 $(document).ready(function() {    
-    function updateState() {
+    function displayError(xhr) {
+        alert("Error: " + xhr.responseText);
+    }
+
+    function fenceState() {
         $("#loader").show();
-        $.get("/state", function(data) {
+        $.get("/fence", function(data) {
             $("#on, #off").hide();
 
             var state = parseInt(data);
@@ -11,22 +15,18 @@ $(document).ready(function() {
                 $("#off").show();
             }
             $("#loader").hide();
-        });
+        }).fail(displayError);
     }
 
-    function command(url) {
+    function switchFence() {
         $("#loader").show();
-        $.get(url, updateState);
+        $.post("/fence", fenceState).fail(displayError);
     }
 
-    $("#on").click(function() {
-        command("/off");
-    });
-
-    $("#off").click(function() {
-        command("/on");
+    $("#on, #off").click(function() {
+        switchFence();
     });
 
     $("#on, #off").hide();
-    updateState();
+    fenceState();
 });
