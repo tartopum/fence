@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 fence_on = False
+light_in1_on = False
 
 
 @app.route('/fence', methods=['GET', 'POST'])
@@ -10,6 +11,14 @@ def fence():
     if request.method == 'POST':
         fence_on = not fence_on
     return "1" if fence_on else "0"
+
+
+@app.route('/light_in1', methods=['GET', 'POST'])
+def light_in1():
+    global light_in1_on
+    if request.method == 'POST':
+        light_in1_on = not light_in1_on
+    return "1" if light_in1_on else "0"
 
 
 if __name__ == "__main__":

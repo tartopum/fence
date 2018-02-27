@@ -15,16 +15,16 @@ def home():
     return render_template("index.html")
 
 
-def switch_fence():
+def switch(url_suffix):
     try:
-        return requests.post(getArduinoUrl("fence")).text
+        return requests.post(getArduinoUrl(url_suffix), timeout=TIMEOUT).text
     except requests.exceptions.ConnectionError:
         return 'Cannot connect to Arduino', 404
 
 
-def fence_state():
+def read_state(url_suffix):
     try:
-        return requests.get(getArduinoUrl("fence"), timeout=TIMEOUT).text
+        return requests.get(getArduinoUrl(url_suffix), timeout=TIMEOUT).text
     except requests.exceptions.ConnectionError:
         return 'Cannot connect to Arduino', 404
 
@@ -32,8 +32,16 @@ def fence_state():
 @app.route('/fence', methods=['GET', 'POST'])
 def fence():
     if request.method == 'POST':
-        return switch_fence()
-    return fence_state()
+        return switch("fence")
+    return read_state("fence")
+
+
+@app.route('/light_in1', methods=['GET', 'POST'])
+def light_in1():
+    if request.method == 'POST':
+        return switch("light_in1")
+    return read_state("light_in1")
+
 
 
 if __name__ == "__main__":

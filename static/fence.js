@@ -3,30 +3,37 @@ $(document).ready(function() {
         alert("Error: " + xhr.responseText);
     }
 
-    function fenceState() {
-        $("#loader").show();
-        $.get("/fence", function(data) {
-            $("#on, #off").hide();
-
-            var state = parseInt(data);
-            if (state) {
-                $("#on").show();
-            } else {
-                $("#off").show();
-            }
-            $("#loader").hide();
-        }).fail(displayError);
+    function getImageUrl(suffix) {
+        return "/static/" + suffix;
     }
 
-    function switchFence() {
-        $("#loader").show();
-        $.post("/fence", fenceState).fail(displayError);
+    function stateUpdated(id, state) {
+        if (state) {
+            $("#" + id + " img").attr("src", getImageUrl("light_on.png"));
+        } else {
+            $("#" + id + " img").attr("src", getImageUrl("light_off.png"));
+        }
+        $("#loader").css("visibility", "hidden");
     }
 
-    $("#on, #off").click(function() {
-        switchFence();
-    });
+    function switchState(id) {
+        $("#loader").css("visibility", "visible");
+        $.post("/" + id, function(data) {
+            stateUpdated(id, parseInt(data));
+        })
+        .fail(displayError);
+    }
 
-    $("#on, #off").hide();
-    fenceState();
+    var ids = ["fence", "light_in1"];
+    for(let id of ids) {
+        $("#" + id).click(function() {
+            switchState(id);
+        });
+
+        $("#loader").css("visibility", "visible");
+        $.get("/" + id, function(data) {
+            stateUpdated(id, parseInt(data)); 
+        })
+        .fail(displayError);
+    }
 });
