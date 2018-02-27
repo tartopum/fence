@@ -1,10 +1,21 @@
 import requests
 from flask import Flask, render_template, request
+from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
-#ARDUINO_URL = "http://192.168.167.100"
+#ARDUINO_URL = "http://192.168.168.115"
 ARDUINO_URL = "http://localhost:5001"
 TIMEOUT = 10
+
+auth = HTTPBasicAuth()
+users = {"admin": "admin"}  # WARNING: to be customized!
+
+
+@auth.get_password
+def get_pw(username):
+    if username in users:
+        return users.get(username)
+    return None
 
 
 def getArduinoUrl(suffix):
@@ -12,6 +23,7 @@ def getArduinoUrl(suffix):
 
 
 @app.route('/')
+@auth.login_required
 def home():
     return render_template("index.html")
 
@@ -31,6 +43,7 @@ def read_state(url_suffix):
 
 
 @app.route('/fence', methods=['GET', 'POST'])
+@auth.login_required
 def fence():
     if request.method == 'POST':
         return switch("fence")
@@ -38,6 +51,7 @@ def fence():
 
 
 @app.route('/light_in1', methods=['GET', 'POST'])
+@auth.login_required
 def light_in1():
     if request.method == 'POST':
         return switch("light_in1")
@@ -45,6 +59,7 @@ def light_in1():
 
 
 @app.route('/light_in2', methods=['GET', 'POST'])
+@auth.login_required
 def light_in2():
     if request.method == 'POST':
         return switch("light_in2")
@@ -52,6 +67,7 @@ def light_in2():
 
 
 @app.route('/light_out', methods=['GET', 'POST'])
+@auth.login_required
 def light_out():
     if request.method == 'POST':
         return switch("light_out")
