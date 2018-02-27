@@ -6,6 +6,7 @@ app = Flask(__name__)
 ARDUINO_URL = "http://localhost:5001"
 TIMEOUT = 10
 
+
 def getArduinoUrl(suffix):
     return ARDUINO_URL + "/" + suffix
 
@@ -48,6 +49,13 @@ def light_in2():
     if request.method == 'POST':
         return switch("light_in2")
     return read_state("light_in2")
+
+
+@app.route('/light_out', methods=['GET', 'POST'])
+def light_out():
+    if request.method == 'POST':
+        return switch("light_out")
+    return read_state("light_out")
 
 
 if __name__ == "__main__":

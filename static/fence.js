@@ -24,7 +24,7 @@ $(document).ready(function() {
         .fail(displayError);
     }
 
-    var ids = ["fence", "light_in1", "light_in2"];
+    var ids = ["fence", "light_in1", "light_in2", "light_out"];
     for(let id of ids) {
         $("#" + id).click(function() {
             switchState(id);
