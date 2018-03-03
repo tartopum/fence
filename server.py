@@ -74,5 +74,13 @@ def light_out():
     return read_state("light_out")
 
 
+@app.route('/alarm', methods=['GET', 'POST'])
+@auth.login_required
+def alarm():
+    if request.method == 'POST':
+        return switch("alarm")
+    return read_state("alarm")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0")

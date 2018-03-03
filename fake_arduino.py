@@ -5,6 +5,7 @@ fence_on = False
 light_in1_on = False
 light_in2_on = False
 light_out_on = False
+alarm_on = False
 
 
 @app.route('/fence', methods=['GET', 'POST'])
@@ -37,6 +38,15 @@ def light_out():
     if request.method == 'POST':
         light_out_on = not light_out_on
     return "1" if light_out_on else "0"
+
+
+@app.route('/alarm', methods=['GET', 'POST'])
+def alarm():
+    global alarm_on
+    if request.method == 'POST':
+        alarm_on = not alarm_on
+    return "1" if alarm_on else "0"
+
 
 
 if __name__ == "__main__":

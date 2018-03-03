@@ -12,6 +12,9 @@ $(document).ready(function() {
         light_out: {
             iconPrefix: "light_"
         },
+        alarm: {
+            iconPrefix: "alarm_"
+        },
     };
 
     function displayError(xhr) {
