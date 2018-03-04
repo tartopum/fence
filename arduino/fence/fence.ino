@@ -34,10 +34,13 @@ int light2State = LOW;
 // Alarm
 int alarmSwitchState = LOW;
 bool alarmActivated = false;
+int ALARM_BUZZER_DELAY = 10000;
+unsigned long alarmBuzzerTimer = 0;
 int ALARM_DETECTOR_INPUT = CONTROLLINO_DI3;
 int ALARM_BUZZER_OUTPUT = CONTROLLINO_DO3;
 int ALARM_LIGHT_OUTPUT = CONTROLLINO_DO1;
 int ALARM_SWITCH_INPUT = CONTROLLINO_DI2;
+int ALARM_ACTIVATED_OUTPUT = CONTROLLINO_DO4;
 
 
 void switchOutput(int pin) {
@@ -178,25 +181,32 @@ void light() {
 }
 
 void alarm() {
-    Serial.print("Alarm activated:");
-    Serial.println(alarmActivated);
+    digitalWrite(ALARM_ACTIVATED_OUTPUT, alarmActivated ? HIGH : LOW);
 
     int switchState = digitalRead(ALARM_SWITCH_INPUT);
     if(switchState != alarmSwitchState) {
         alarmActivated = switchState == HIGH;
-        Serial.println("Alarm changed");
     }
     alarmSwitchState = switchState;
 
     if(!alarmActivated) {
         digitalWrite(ALARM_BUZZER_OUTPUT, LOW);
         digitalWrite(ALARM_LIGHT_OUTPUT, LOW);
+        alarmBuzzerTimer = 0;
         return;
     }
 
+    unsigned long mill = millis();
     if(digitalRead(ALARM_DETECTOR_INPUT)) {
-        digitalWrite(ALARM_BUZZER_OUTPUT, HIGH);
-        digitalWrite(ALARM_LIGHT_OUTPUT, HIGH);
+        if(!alarmBuzzerTimer) {
+            alarmBuzzerTimer = mill;
+        } else if(mill - alarmBuzzerTimer > ALARM_BUZZER_DELAY) {
+            digitalWrite(ALARM_BUZZER_OUTPUT, HIGH);
+            digitalWrite(ALARM_LIGHT_OUTPUT, HIGH);
+            alarmBuzzerTimer = 0;
+        }
+    } else {
+        alarmBuzzerTimer = 0;
     }
 }
 
@@ -212,6 +222,7 @@ void setup() {
     pinMode(ALARM_DETECTOR_INPUT, INPUT);
     pinMode(ALARM_BUZZER_OUTPUT, OUTPUT);
     pinMode(ALARM_LIGHT_OUTPUT, OUTPUT);
+    pinMode(ALARM_ACTIVATED_OUTPUT, OUTPUT);
 
     light1State = digitalRead(LIGHT_IN1_OUTPUT);
     light2State = digitalRead(LIGHT_IN2_OUTPUT);
@@ -226,8 +237,6 @@ void setup() {
     webserver.addCommand("light_out", &lightOutRoute);
     webserver.addCommand("alarm", &alarmRoute);
     webserver.begin();
-
-    Serial.begin(9600);
 }
 
 void loop() {
@@ -236,5 +245,4 @@ void loop() {
     webserver.processConnection(buff, &len);
     light(); 
     alarm();
-    delay(1000);
 }
