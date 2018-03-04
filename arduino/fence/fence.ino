@@ -193,6 +193,7 @@ void alarm() {
     if(!alarmActivated) {
         digitalWrite(ALARM_BUZZER_OUTPUT, LOW);
         digitalWrite(ALARM_LIGHT_OUTPUT, LOW);
+        digitalWrite(LIGHT_OUT_OUTPUT, LOW);
         alarmBuzzerTimer = 0;
         return;
     }
@@ -204,6 +205,7 @@ void alarm() {
         } else if(mill - alarmBuzzerTimer > ALARM_BUZZER_DELAY) {
             digitalWrite(ALARM_BUZZER_OUTPUT, HIGH);
             digitalWrite(ALARM_LIGHT_OUTPUT, HIGH);
+            digitalWrite(LIGHT_OUT_OUTPUT, HIGH);
             alarmBuzzerTimer = 0;
         }
     } else {
