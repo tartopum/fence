@@ -182,6 +182,7 @@ void light() {
 
 void alarm() {
     digitalWrite(ALARM_ACTIVATED_OUTPUT, alarmActivated ? HIGH : LOW);
+    digitalWrite(STOP_OUTPUT, alarmActivated ? LOW : HIGH);
 
     int switchState = digitalRead(ALARM_SWITCH_INPUT);
     if(switchState != alarmSwitchState) {
@@ -223,6 +224,7 @@ void setup() {
     pinMode(ALARM_BUZZER_OUTPUT, OUTPUT);
     pinMode(ALARM_LIGHT_OUTPUT, OUTPUT);
     pinMode(ALARM_ACTIVATED_OUTPUT, OUTPUT);
+    pinMode(STOP_OUTPUT, OUTPUT);
 
     light1State = digitalRead(LIGHT_IN1_OUTPUT);
     light2State = digitalRead(LIGHT_IN2_OUTPUT);
