@@ -1,14 +1,16 @@
 import requests
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
 #ARDUINO_URL = "http://192.168.168.115"
-ARDUINO_URL = "http://localhost:5001"
+ARDUINO_URL = "http://127.0.0.1:5001"
 TIMEOUT = 10
 
 auth = HTTPBasicAuth()
 users = {"admin": "admin"}  # WARNING: to be customized!
+
+alarm_detector_on = False
 
 
 @auth.get_password
@@ -18,7 +20,7 @@ def get_pw(username):
     return None
 
 
-def getArduinoUrl(suffix):
+def arduino_url(suffix):
     return ARDUINO_URL + "/" + suffix
 
 
@@ -30,16 +32,16 @@ def home():
 
 def switch(url_suffix):
     try:
-        return requests.post(getArduinoUrl(url_suffix), timeout=TIMEOUT).text
+        return requests.post(arduino_url(url_suffix), timeout=TIMEOUT).text
     except requests.exceptions.ConnectionError:
-        return 'Cannot connect to Arduino', 404
+        return 'Cannot connect to Arduino /' + url_suffix, 404
 
 
 def read_state(url_suffix):
     try:
-        return requests.get(getArduinoUrl(url_suffix), timeout=TIMEOUT).text
+        return requests.get(arduino_url(url_suffix), timeout=TIMEOUT).text
     except requests.exceptions.ConnectionError:
-        return 'Cannot connect to Arduino', 404
+        return 'Cannot connect to Arduino /' + url_suffix, 404
 
 
 @app.route('/fence', methods=['GET', 'POST'])
@@ -81,6 +83,14 @@ def alarm():
         return switch("alarm")
     return read_state("alarm")
 
+
+@app.route('/alarm_detector', methods=['GET', 'POST'])
+@auth.login_required
+def alarm_detector():
+    global alarm_detector_on
+    if request.method == 'POST':
+        alarm_detector_on = bool(request.json)
+    return jsonify(alarm_detector_on)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")

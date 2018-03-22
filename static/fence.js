@@ -34,10 +34,27 @@ $(document).ready(function() {
         $("#loader").css("visibility", "hidden");
     }
 
+    function updateStates() {
+        $("#loader").css("visibility", "visible");
+        for(let id in ids) {
+            $.get("/" + id, function(data) {
+                stateUpdated(id, parseInt(data)); 
+                if(id == "alarm") {
+                    $.get("/alarm_detector", function(isOn) {
+                        if(isOn) {
+                            $("#" + id + " img").attr("src", getImageUrl(id, "detector_on.gif"));
+                        }
+                    });
+                }
+            })
+            .fail(displayError);
+        }
+    }
+
     function switchState(id) {
         $("#loader").css("visibility", "visible");
         $.post("/" + id, function(data) {
-            stateUpdated(id, parseInt(data));
+            updateStates();
         })
         .fail(displayError);
     }
@@ -46,11 +63,6 @@ $(document).ready(function() {
         $("#" + id).click(function() {
             switchState(id);
         });
-
-        $("#loader").css("visibility", "visible");
-        $.get("/" + id, function(data) {
-            stateUpdated(id, parseInt(data)); 
-        })
-        .fail(displayError);
     }
+    updateStates();
 });
