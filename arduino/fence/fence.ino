@@ -4,8 +4,14 @@
 #include <WebServer.h> // https://github.com/sirleech/Webduino
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress ip(192, 168, 168, 115);
+// IPAddress ip(192, 168, 168, 115);
+IPAddress ip(192, 168, 167, 102);
 WebServer webserver("", 80);
+
+// WARNING: to be customized!
+const char API_HOST[] = "192.168.167.101";
+const char API_AUTH_HEADER[] = "Authorization: Basic YWRtaW46YWRtaW4=";
+const int API_PORT = 5000;
 
 int STOP_OUTPUT = CONTROLLINO_RELAY_03;
 
@@ -180,7 +186,31 @@ void light() {
     light2State = light2;
 }
 
+void requestAlarmDetector(bool on) {
+    EthernetClient client;
+    if(!client.connect(API_HOST, API_PORT)) {
+        return;
+    }
+    client.println("POST /alarm_detector HTTP/1.1");
+    client.println("Content-Type: application/json");
+    client.println("Connection: close");
+    client.println("Authorization: Basic YWRtaW46YWRtaW4=");
+    if(on) {
+        client.println("Content-Length: 4");
+        client.println();
+        client.println("true");
+    } else {
+        client.println("Content-Length: 5");
+        client.println();
+        client.println("false");
+    }
+    client.println();
+    client.stop();
+}
+
 void alarm() {
+    requestAlarmDetector(false);
+
     digitalWrite(ALARM_ACTIVATED_OUTPUT, alarmActivated ? HIGH : LOW);
     digitalWrite(STOP_OUTPUT, alarmActivated ? LOW : HIGH);
 
@@ -207,6 +237,7 @@ void alarm() {
             digitalWrite(ALARM_LIGHT_OUTPUT, HIGH);
             digitalWrite(LIGHT_OUT_OUTPUT, HIGH);
             alarmBuzzerTimer = 0;
+            requestAlarmDetector(true);
         }
     } else {
         alarmBuzzerTimer = 0;

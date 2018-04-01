@@ -4,7 +4,8 @@ from flask_httpauth import HTTPBasicAuth
 
 app = Flask(__name__)
 #ARDUINO_URL = "http://192.168.168.115"
-ARDUINO_URL = "http://127.0.0.1:5001"
+ARDUINO_URL = "http://192.168.167.102"
+#ARDUINO_URL = "http://127.0.0.1:5001"
 TIMEOUT = 10
 
 auth = HTTPBasicAuth()
@@ -38,9 +39,10 @@ def switch(url_suffix):
 
 
 def read_state(url_suffix):
+    return '0'
     try:
         return requests.get(arduino_url(url_suffix), timeout=TIMEOUT).text
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return 'Cannot connect to Arduino /' + url_suffix, 404
 
 
